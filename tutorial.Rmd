@@ -35,7 +35,7 @@ To download the data, all we need to do is point R to the address of the file. L
 ```{r load data}
 options(timeout = 240) # set a longer download timeout in case on a slow connection
 load(url("https://github.com/fishglob/FishGlob_data/raw/refs/heads/flag_hex/outputs/Cleaned_data/NEUS_std_clean.RData")) # use the branch with fixed spatial flags
-#load(url("https://github.com/fishglob/FishGlob_data/raw/main/outputs/Cleaned_data/GMEX_std_clean.RData"))
+#load(url("https://github.com/fishglob/FishGlob_data/raw/refs/heads/flag_hex/outputs/Cleaned_data/GMEX_std_clean.RData"))
 ```
 
 ## 3. View data
