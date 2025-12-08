@@ -12,11 +12,11 @@ Many studies report that biological communities are experiencing an increase in 
 
 To proceed through this tutorial, read the text above each grey chunk of code. To run the code in a chunk, either click the green arrow in the upper right corner of a chunk, or select some lines of code and choose "Run Selected Lines" from the Code menu.
 
-This is some setup code. Please run it now.
+This is some setup code. Please run it now. If you don't have the "vegan" or "ggplot2" packages, it will install them for you.
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-# install packages if not on your machine
+# install packages that are not on your machine yet
 if(!require("vegan")) install.packages("vegan")
 if(!require("ggplot2")) install.packages("ggplot2")
 
@@ -48,7 +48,7 @@ This code will provide a summary of the dataset columns and a small look at what
 str(data)
 ```
 
-For a description of all the columns, look at the "readme" object that is provided with each FISHGLOB survey file:
+For a description of all the columns, look at the "readme" object that is provided with each FISHGLOB survey file. This was loaded with the data.
 ```{r metadata}
 View(readme)
 ```
@@ -56,24 +56,23 @@ View(readme)
 We can also plot the locations of the survey tows. A transparent color is used to show which locations were surveyed more often.
 ```{r map}
 plot(data$longitude, data$latitude, col = '#00000001', xlab = "Longitude", ylab = "Latitude")
-# plot(data$longitude, data$latitude, col = is.na(data$flag_trimming_hex8_0)+1, xlab = "Longitude", ylab = "Latitude") # code to plot what will be trimmed out
 
-# code to plot what will be trimmed out (black) or kept (red)
+# code to plot what will be trimmed out (black) or kept (red) in the spatial standardization step later.
 # ggplot(data, aes(longitude, latitude)) + 
 #     geom_point(color = is.na(data$flag_trimming_hex8_2)+1, size = 0.2) +
 #     facet_wrap(vars(year))
 
 ```
 
-## 4. Clean up dataset
-We need to clean up the dataset to prepare for the analysis of biotic homogenization.
+## 4. Clean up
+We need to clean up the dataset to prepare for the analysis of biotic homogenization. Depending on the analysis one is doing, these steps will be different.
 
-First, we will remove the observations not resolved to species or subspecies. The "rank" column provides a handy indication of the taxonomic rank of each entry.
+First, we will remove the observations not resolved to species or subspecies. The "rank" column provides a handy indication of the taxonomic rank of each entry (e.g., family, genus, species, etc.).
 ```{r spptrim}
 datatrim <- data[data$rank %in% c("Species", "Subspecies"),]
 ```
 
-Second, we will trim every year to a consistent spatial footprint (see Fig. 3 in Maureaud et al. 2024 https://doi.org/10.1038/s41597-023-02866-w for a visual representation). The "flag_trimming" columns provide some pre-calculated options. We will use "flag_trimming_8_0", which is the finer spatial grain option and allows 0% missing years. TRUE indicates a row to remove, NA indicates a row to keep.
+Second, we will trim every year to a consistent spatial footprint (see Fig. 3 in Maureaud et al. 2024 https://doi.org/10.1038/s41597-023-02866-w for a visual representation of this step). The "flag_trimming" columns provide some pre-calculated options. We will use "flag_trimming_8_0", which is the finer spatial grain option and allows 0% missing years from each spatial grid cell. TRUE indicates a row to remove, NA indicates a row to keep.
 ```{r spatialtrim}
 datatrim.spatial <- datatrim[is.na(datatrim$flag_trimming_hex8_0),]
 ```
@@ -83,7 +82,7 @@ Third, delete all rows with missing abundance and biomass data.
 datatrim.noNA <- datatrim.spatial[!(is.na(datatrim.spatial$num_cpue) & is.na(datatrim.spatial$wgt_cpue) & is.na(datatrim.spatial$wgt) & is.na(datatrim.spatial$num)),]
 ```
 
-Let's plot the locations of the survey tows again, for a comparison against the full dataset we mapped earlier.
+Let's plot the locations of the survey tows again, for a comparison against the full dataset we mapped earlier. We can see how some poorly surveyed parts were trimmed off.
 ```{r map}
 plot(datatrim.noNA$longitude, datatrim.noNA$latitude, col = '#00000001', xlab = "Longitude", ylab = "Latitude")
 
@@ -96,7 +95,7 @@ plot(datatrim.noNA$longitude, datatrim.noNA$latitude, col = '#00000001', xlab = 
 ```
 
 ## 5. Calculate homogenization in each year
-We use the Jaccard dissimilarity metric among locations in each year. This takes a little while to loop through each year of the survey (a few seconds).
+We use the Jaccard dissimilarity metric among locations in each year to understand the degree of homogenization each year. We make this calculation each year and then can plot the changes through time. This calculation takes a little while to loop through each year of the survey (a few seconds).
 ```{r jaccard}
 #list the years of data we have
 years <- unique(datatrim.noNA$year)
@@ -141,7 +140,7 @@ for (j in 1:length(years)) {
 
 
 ## 6. Plot
-Time to visualize our results! We plot year on the x-axis and dissimilarity on the y-axis (down is more homogenous). We also plot a curve through the datapoints.
+Time to visualize the results! We plot year on the x-axis and dissimilarity on the y-axis (down is more homogenous, up is more dissimilar). We also plot a curve through the datapoints.
 ```{r plot}
 
 ggplot(jaccard_index, aes(year, annual_dissimilarity_value)) +
@@ -158,4 +157,6 @@ ggplot(jaccard_index, aes(year, annual_dissimilarity_value)) +
 
 1. For this region, how is the degree of homogenization changing? Is it clearly increasing or decreasing?
 
-2. Go back to Step 2 (Download data) and pick a different region to download and visualize. You can see the list of files for different regions in the outputs/Cleaned_data folder of the Github repository (https://github.com/fishglob/FishGlob_data/tree/main/outputs/Cleaned_data). Make sure to download the _std_clean.RData version so that the spatial standardization flags are included.
+2. If you know the marine community in this region, can you think of reasons that the degree of homogenization might be changing?
+
+3. Go back to Step 2 (Download data) and pick a different region to download and visualize. You can see the list of files for different regions in the outputs/Cleaned_data folder of the Github repository (https://github.com/fishglob/FishGlob_data/tree/main/outputs/Cleaned_data). Make sure to download the _std_clean.RData version so that the spatial standardization flags are included.
