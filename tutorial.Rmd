@@ -31,11 +31,10 @@ Our first step is to download the FISHGLOB data. The data is stored in a public 
 The cleaned data are stored on the website under outputs/Cleaned_data: https://github.com/fishglob/FishGlob_data/tree/main/outputs/Cleaned_data. Each region has an abbreviation (e.g., NEUS for the Northeast United States).
 
 To download the data, all we need to do is point R to the address of the file. Let's try the Northeast US first. Run the following code to load the data into R:
-
 ```{r load data}
-options(timeout = 240) # set a longer download timeout in case on a slow connection
-load(url("https://github.com/fishglob/FishGlob_data/raw/refs/heads/flag_hex/outputs/Cleaned_data/NEUS_std_clean.RData")) # use the branch with fixed spatial flags
-#load(url("https://github.com/fishglob/FishGlob_data/raw/refs/heads/flag_hex/outputs/Cleaned_data/GMEX_std_clean.RData"))
+options(timeout = 240) # set a longer download timeout in case you are on a slow connection
+load(url("https://github.com/fishglob/FishGlob_data/raw/refs/heads/flag_hex/outputs/Cleaned_data/NEUS_std_clean.RData")) # for the Northeast US
+#load(url("https://github.com/fishglob/FishGlob_data/raw/refs/heads/flag_hex/outputs/Cleaned_data/GMEX_std_clean.RData")) # another option, for the Gulf of Mexico.
 ```
 
 ## 3. View data
@@ -43,7 +42,7 @@ The survey data are stored as a data table (like an Excel spreadsheet) with many
 
 Each row in this spreadsheet is an observation of a species at a particular location and time during a haul of a bottom trawl survey.
 
-This code will provide a summary of the dataset columns and a small look at what is in each one. The "survey" column, for example, provides the survey name. The "source" column provides the name of the institution that performed the survey. The "year", "month", and "day" columns provide the date of a particular survey tow, etc.
+This code will provide a summary of the dataset columns and a small look at what is in each one. The "survey" column, for example, provides the survey name. The "source" column provides the name of the institution that performed the survey. The "year", "month", and "day" columns provide the date of a particular survey tow. The wgt_cpue and the num_cpue provide observations of biomass (wgt_cpue) and abundance (num_cpue) standardized based on the observation effort.
 ```{r view}
 str(data)
 ```
@@ -159,4 +158,4 @@ ggplot(jaccard_index, aes(year, annual_dissimilarity_value)) +
 
 2. If you know the marine community in this region, can you think of reasons that the degree of homogenization might be changing?
 
-3. Go back to Step 2 (Download data) and pick a different region to download and visualize. You can see the list of files for different regions in the outputs/Cleaned_data folder of the Github repository (https://github.com/fishglob/FishGlob_data/tree/main/outputs/Cleaned_data). Make sure to download the _std_clean.RData version so that the spatial standardization flags are included.
+3. Go back to Step 2 (Download data) and pick a different region to download and visualize. For a map of the options, check out Fig. 2 of Maureaud et al. 2024 (https://doi.org/10.1038/s41597-023-02866-w). You can see the list of files for different regions in the outputs/Cleaned_data folder of the Github repository (https://github.com/fishglob/FishGlob_data/tree/main/outputs/Cleaned_data). Make sure to download the _std_clean.RData version so that the spatial standardization flags are included.
